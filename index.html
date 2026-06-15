@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dilemas - Balance & Rueda de la Vida</title>
+<style>
+  /* ── RESET & BASE ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #1A1A1E; 
+    --surface:   #232329; 
+    --surface2:  #2D2D35; 
+    --border:    #383842; 
+    --text:      #F5F5F7; 
+    --text-dim:  #8E8E93;
+    --pro:       #30D158; 
+    --pro-dim:   rgba(48,209,88,0.15);
+    --contra:    #FF453A; 
+    --contra-dim:rgba(255,69,58,0.15);
+    --gold:      #FFD60A; 
+    --radius:    12px;
+    --font-mono: 'SF Mono', SFMono-Regular, Consolas, monospace;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  html { background: var(--bg); }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    padding: 0 0 100px;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .app-title {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .app-title span { color: var(--pro); }
+
+  .subtitle {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  /* ── DILEMA INPUT ── */
+  .dilema-section {
+    padding: 20px 20px 16px;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .dilema-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    padding: 12px 14px;
+    outline: none;
+    resize: none;
+    transition: all 0.2s;
+    caret-color: var(--pro);
+  }
+
+  .dilema-input:focus {
+    border-color: var(--gold);
+    background: var(--surface2);
+  }
+
+  /* ── COLUMNS ── */
+  .columns-section {
+    padding: 0 10px;
+  }
+
+  .columns-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .column {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .column-header {
+    padding: 12px 12px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.01);
+  }
+
+  .column-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .col-score {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .column-pro  .column-title { color: var(--pro); }
+  .column-pro  .col-score    { color: var(--pro); }
+  .column-contra .column-title { color: var(--contra); }
+  .column-contra .col-score    { color: var(--contra); }
+
+  .items-list {
+    min-height: 120px;
+    padding: 4px 0;
+  }
+
+  .item-empty {
+    padding: 30px 10px;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* ── ITEM CARD ── */
+  .item-card {
+    padding: 10px 10px 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    position: relative;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .item-text {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.4;
+    padding-right: 36px;
+    margin-bottom: 6px;
+    word-break: break-word;
+  }
+
+  .item-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .item-category {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .item-weight {
+    display: flex;
+    gap: 3px;
+  }
+
+  .weight-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .column-pro .weight-dot.filled   { background: var(--pro); }
+  .column-contra .weight-dot.filled { background: var(--contra); }
+
+  .item-actions {
+    position: absolute;
+    top: 8px; right: 8px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .btn-card-action {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0.4;
+    padding: 2px;
+    transition: opacity 0.15s, color 0.15s;
+  }
+  .btn-card-action:active { opacity: 1; }
+  .btn-card-action.edit:active { color: var(--gold); }
+  .btn-card-action.delete:active { color: var(--contra); }
+
+  .btn-add {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    width: calc(100% - 16px); margin: 8px; padding: 10px 0;
+    border-radius: 8px; border: 1px dashed var(--border);
+    font-family: var(--font-mono); font-size: 11px; font-weight: 600; text-transform: uppercase;
+    cursor: pointer; background: transparent; transition: all 0.2s;
+  }
+  .column-pro .btn-add { color: var(--pro); border-color: rgba(48,209,88,0.2); }
+  .column-pro .btn-add:active { background: var(--pro-dim); }
+  .column-contra .btn-add { color: var(--contra); border-color: rgba(255,69,58,0.2); }
+  .column-contra .btn-add:active { background: var(--contra-dim); }
+
+  /* ── DECIDE BUTTON ── */
+  .decide-section { padding: 20px; }
+  .btn-decide {
+    width: 100%; padding: 16px; background: linear-gradient(135deg, #FFD60A, #FFB300);
+    border: none; border-radius: var(--radius); color: #000;
+    font-family: var(--font-mono); font-size: 13px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(255,214,10,0.2);
+  }
+  .btn-decide:disabled {
+    background: var(--surface); color: var(--text-dim); border: 1px solid var(--border); box-shadow: none; cursor: not-allowed;
+  }
+  .hint-text { text-align: center; font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+
+  /* ── MODAL OVERLAY ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100;
+    display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    backdrop-filter: blur(8px);
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    width: 100%; background: #232329; border-top: 1px solid var(--border);
+    border-radius: 20px 20px 0 0; padding: 16px 20px 30px;
+    transform: translateY(100%); transition: transform 0.25s ease-out;
+    max-height: 90dvh; overflow-y: auto;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+  .modal-title.pro { color: var(--pro); }
+  .modal-title.contra { color: var(--contra); }
+
+  .field { margin-bottom: 16px; }
+  .field-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); padding: 12px; outline: none; font-size: 14px;
+  }
+  .field-input:focus { border-color: var(--gold); }
+
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .cat-btn {
+    padding: 10px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 12px; cursor: pointer;
+    text-align: left; display: flex; align-items: center; gap: 8px; transition: all 0.15s;
+  }
+  .cat-btn.selected { border-color: var(--gold); background: rgba(255,214,10,0.1); color: var(--gold); }
+
+  .weight-row { display: flex; gap: 6px; }
+  .weight-btn {
+    flex: 1; padding: 10px 0; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text-dim); font-family: var(--font-mono); font-size: 14px;
+    font-weight: 700; cursor: pointer; transition: all 0.15s;
+  }
+  .weight-btn.selected-pro { border-color: var(--pro); color: var(--pro); background: var(--pro-dim); }
+  .weight-btn.selected-contra { border-color: var(--contra); color: var(--contra); background: var(--contra-dim); }
+
+  .btn-submit {
+    width: 100%; padding: 14px; border: none; border-radius: 8px; font-family: var(--font-mono);
+    font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; margin-top: 10px;
+  }
+  .btn-submit.pro { background: var(--pro); color: #000; }
+  .btn-submit.contra { background: var(--contra); color: #fff; }
+  .btn-submit:disabled { opacity: 0.2; cursor: not-allowed; }
+
+  /* ── RESULT SCREEN ── */
+  .resultado-overlay {
+    position: fixed; inset: 0; background: #1A1A1E; z-index: 200;
+    display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    overflow-y: auto;
+  }
+  .resultado-overlay.open { opacity: 1; pointer-events: all; }
+  .resultado-inner { padding: 24px 20px 40px; display: flex; flex-direction: column; }
+
+  .res-dilema {
+    font-size: 15px; color: var(--text-dim); font-style: italic; margin-bottom: 16px;
+    border-left: 3px solid var(--gold); padding-left: 10px; line-height: 1.4;
+  }
+
+  .score-duel {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; margin-bottom: 12px;
+  }
+  .score-side { display: flex; flex-direction: column; gap: 2px; }
+  .score-side.right { text-align: right; }
+  .score-label { font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 1px; }
+  .score-label.pro { color: var(--pro); }
+  .score-label.contra { color: var(--contra); }
+  .score-num { font-family: var(--font-mono); font-size: 42px; font-weight: 800; line-height: 1; }
+  .score-num.pro { color: var(--pro); }
+  .score-num.contra { color: var(--contra); }
+  .score-vs { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
+
+  .balance-bar-wrap { height: 8px; background: var(--surface); border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
+  .balance-bar-fill { height: 100%; background: var(--pro); width: 50%; transition: width 0.5s ease-out; position: relative; }
+  .balance-bar-fill::after {
+    content: ''; position: absolute; top: 0; right: 0; width: calc(100% - var(--w)); height: 100%;
+    background: var(--contra); margin-left: calc(var(--w) + 1px);
+  }
+
+  .breakdown-title { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 10px; }
+  .cat-breakdown { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .cat-row { background: var(--surface); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); }
+  .cat-row-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 12px; }
+  .cat-row-name { display: flex; gap: 6px; font-weight: 600; }
+  .cat-row-pct { font-family: var(--font-mono); font-size: 11px; font-weight: 700; }
+  .cat-bar-track { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .cat-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease-out; }
+
+  .veredicto-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 16px; text-align: center; margin-bottom: 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+  .veredicto-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+  .veredicto-text { font-size: 18px; font-weight: 800; line-height: 1.3; margin-bottom: 4px; }
+  .veredicto-sub { font-size: 12px; color: var(--text-dim); line-height: 1.4; }
+
+  .actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn-action {
+    padding: 14px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-family: var(--font-mono); font-size: 12px;
+    font-weight: 600; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-action:active { background: var(--surface2); border-color: var(--text-dim); }
+  .btn-action.clear-all { color: var(--contra); border-color: rgba(255,69,58,0.2); }
+  .btn-action.clear-all:active { background: var(--contra-dim); border-color: var(--contra); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="eyebrow">Rueda de la Vida & Balance</div>
+  <h1 class="app-title">Dilemas<span>.</span></h1>
+  <p class="subtitle">Ponderación matemática de dilemas complejos.</p>
+</header>
+
+<section class="dilema-section">
+  <label class="section-label" for="dilema">¿Cuál es tu decisión a tomar?</label>
+  <textarea id="dilema" class="dilema-input" rows="2" placeholder="Ej: Irme a vivir al exterior o quedarme..." maxlength="120"></textarea>
+</section>
+
+<section class="columns-section">
+  <div class="columns-grid">
+    <div class="column column-pro" id="col-pro">
+      <div class="column-header">
+        <span class="column-title">Pros</span>
+        <span class="col-score" id="score-pro">0</span>
+      </div>
+      <div class="items-list" id="list-pro">
+        <p class="item-empty">Sin pros aún</p>
+      </div>
+      <button class="btn-add" onclick="openModal('pro')">+ Agregar</button>
+    </div>
+
+    <div class="column column-contra" id="col-contra">
+      <div class="column-header">
+        <span class="column-title">Contras</span>
+        <span class="col-score" id="score-contra">0</span>
+      </div>
+      <div class="items-list" id="list-contra">
+        <p class="item-empty">Sin contras aún</p>
+      </div>
+      <button class="btn-add" onclick="openModal('contra')">+ Agregar</button>
+    </div>
+  </div>
+</section>
+
+<section class="decide-section">
+  <button class="btn-decide" id="btn-decide" onclick="calcularDecision()" disabled>Tomar la Decisión</button>
+  <p class="hint-text" id="decide-hint">Añadí mínimo un Pro y un Contra</p>
+</section>
+
+<div class="modal-overlay" id="add-modal" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 class="modal-title" id="modal-title">Argumento</h2>
+
+    <div class="field">
+      <label class="field-label">Descripción</label>
+      <input type="text" id="item-text" class="field-input" placeholder="Ej: Mayor crecimiento a largo plazo" maxlength="80" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">Área Afectada (Rueda de la Vida)</label>
+      <div class="cat-grid">
+        <button class="cat-btn" data-cat="profesion" onclick="selectCat(this)">💼 Profesión / Trabajo</button>
+        <button class="cat-btn" data-cat="finanzas"  onclick="selectCat(this)">💰 Finanzas / Dinero</button>
+        <button class="cat-btn" data-cat="salud"     onclick="selectCat(this)">❤️ Salud y Bienestar</button>
+        <button class="cat-btn" data-cat="desarrollo"onclick="selectCat(this)">🧠 Crecimiento Personal</button>
+        <button class="cat-btn" data-cat="ocio"      onclick="selectCat(this)">🥳 Ocio y Diversión</button>
+        <button class="cat-btn" data-cat="relaciones"onclick="selectCat(this)">👥 Relaciones y Estatus</button>
+        <button class="cat-btn" data-cat="entorno"   onclick="selectCat(this)">🏡 Entorno / Hogar</button>
+        <button class="cat-btn" data-cat="espiritu"  onclick="selectCat(this)">✨ Espiritualidad / Paz</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Impacto / Peso (1 al 5)</label>
+      <div class="weight-row">
+        <button class="weight-btn" data-w="1" onclick="selectWeight(this)">1</button>
+        <button class="weight-btn" data-w="2" onclick="selectWeight(this)">2</button>
+        <button class="weight-btn" data-w="3" onclick="selectWeight(this)">3</button>
+        <button class="weight-btn" data-w="4" onclick="selectWeight(this)">4</button>
+        <button class="weight-btn" data-w="5" onclick="selectWeight(this)">5</button>
+      </div>
+    </div>
+
+    <button class="btn-submit" id="modal-submit" onclick="submitItem()" disabled>Confirmar</button>
+  </div>
+</div>
+
+<div class="resultado-overlay" id="resultado-overlay">
+  <div class="resultado-inner">
+    <div class="res-dilema" id="res-dilema-text"></div>
+
+    <div class="score-duel">
+      <div class="score-side">
+        <span class="score-label pro">PROS</span>
+        <span class="score-num pro" id="res-score-pro">0</span>
+      </div>
+      <span class="score-vs">VS</span>
+      <div class="score-side right">
+        <span class="score-label contra">CONTRAS</span>
+        <span class="score-num contra" id="res-score-contra">0</span>
+      </div>
+    </div>
+
+    <div class="balance-bar-wrap">
+      <div class="balance-bar-fill" id="balance-fill"></div>
+    </div>
+
+    <p class="breakdown-title">Análisis de Impacto Neto por Área</p>
+    <div class="cat-breakdown" id="cat-breakdown"></div>
+
+    <div class="veredicto-box">
+      <p class="veredicto-label">Veredicto Estratégico</p>
+      <p class="veredicto-text" id="veredicto-text"></p>
+      <p class="veredicto-sub" id="veredicto-sub"></p>
+    </div>
+
+    <div class="actions-row">
+      <button class="btn-action" onclick="closeVerdict()">↩ Modificar</button>
+      <button class="btn-action clear-all" onclick="resetApp()">🗑️ Borrar todo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const state = { 
+  pros: [], 
+  contras: [], 
+  currentType: 'pro', 
+  selectedCat: null, 
+  selectedWeight: null,
+  editingId: null
+};
+
+const CAT_META = {
+  profesion:  { label: 'Profesión',      emoji: '💼', color: '#30D158' },
+  finanzas:   { label: 'Finanzas',       emoji: '💰', color: '#FFD60A' },
+  salud:      { label: 'Salud',          emoji: '❤️', color: '#FF453A' },
+  desarrollo: { label: 'Crecimiento',    emoji: '🧠', color: '#BF5AF2' },
+  ocio:       { label: 'Ocio',           emoji: '🥳', color: '#FF9F0A' },
+  relaciones: { label: 'Relaciones',     emoji: '👥', color: '#0A84FF' },
+  entorno:    { label: 'Entorno',        emoji: '🏡', color: '#64D2FF' },
+  espiritu:   { label: 'Paz Interior',   emoji: '✨', color: '#BF5AF2' }
+};
+
+const FRASES_POOL = {
+  profesion: { pro: ["IMPULSO PROFESIONAL: HACELO", "CRECIMIENTO LABORAL: AVANZÁ"], contra: ["FRENO DE CARRERA: PARÁ", "RIESGO PROFESIONAL: NO CONVIENE"] },
+  finanzas: { pro: ["DECISIÓN RENTABLE: METE CARTUCHO", "BILLETERA CONTENTA: HACELO"], contra: ["ALERTA DE GASTO: AGUANTÁ", "NÚMEROS EN ROJO: NO VALE LA PENA"] },
+  salud: { pro: ["SALUD AL TOP: METELE PARA ADELANTE", "BIENESTAR ASEGURADO: HACELO"], contra: ["FACTOR ESTRÉS: TE VA A HACER MAL", "ALERTA DE SALUD: CUIDATE MÁS"] },
+  desarrollo: { pro: ["EVOLUCIÓN PERSONAL: SACÁ TU MEJOR VERSIÓN", "APRENDIZAJE BRUTAL: HACELO"], contra: ["RETROCESO MENTAL: NO TE SUMA", "ZONA DE CONFORT TOTAL: RECONSIDERÁ"] },
+  ocio: { pro: ["FIESTA EN PUERTA: DISFRUTÁ DEL CAMINO", "PLASSER ABSOLUTO: MANDALE MECHA"], contra: ["PÉRDIDA DE TIEMPO: NO SUMA NADA", "DISTRACCIÓN VACÍA: ENFOCATE"] },
+  relaciones: { pro: ["APOYO EN TU ENTORNO: SUMA AL GRUPO", "CONEXIÓN SOCIAL COMPLETA: AVANZÁ"], contra: ["TOXICIDAD ALTA: TE VA A HACER PELEAR", "AISLAMIENTO SOCIAL: TE QUEDÁS SOLO"] },
+  entorno: { pro: ["ESPACIO COMODO: ENTORNO PREMIUM", "CAMBIO DE AIRE IDEAL: HACELO"], contra: ["HOGAR EN CONFLICTO: NO ES TU LUGAR", "AMBIENTE PESADO: NO TE CONVIENE"] },
+  espiritu: { pro: ["PAZ INVERTEBRADA: SINTONÍA TOTAL", "CONCIENCIA LIMPIA: MANDALE DE UNA"], contra: ["PÉRDIDA DE SUEÑO: TE VA A CARCOMER", "CARGA MORAL: NO VAS A PODER DORMIR"] }
+};
+
+function openModal(type, existingItem = null) {
+  state.currentType = type;
+  if (existingItem) {
+    state.editingId = existingItem.id; state.selectedCat = existingItem.cat; state.selectedWeight = existingItem.weight;
+    document.getElementById('item-text').value = existingItem.text;
+  } else {
+    state.editingId = null; state.selectedCat = null; state.selectedWeight = null;
+    document.getElementById('item-text').value = '';
+  }
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('selected', b.dataset.cat === state.selectedCat));
+  document.querySelectorAll('.weight-btn').forEach(b => {
+    b.classList.remove('selected-pro', 'selected-contra');
+    if (parseInt(b.dataset.w) === state.selectedWeight) b.classList.add('selected-' + type);
+  });
+  checkValid();
+  const t = document.getElementById('modal-title');
+  t.textContent = existingItem ? (type === 'pro' ? 'Modificar Pro' : 'Modificar Contra') : (type === 'pro' ? 'Nuevo Pro' : 'Nuevo Contra');
+  t.className = 'modal-title ' + type;
+  const s = document.getElementById('modal-submit');
+  s.className = 'btn-submit ' + type; s.textContent = existingItem ? 'Guardar Cambios' : 'Confirmar';
+  document.getElementById('add-modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('add-modal').classList.remove('open'); }
+function handleOverlayClick(e) { if (e.target.classList.contains('modal-overlay')) closeModal(); }
+
+function selectCat(btn) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected'); state.selectedCat = btn.dataset.cat; checkValid();
+}
+
+function selectWeight(btn) {
+  document.querySelectorAll('.weight-btn').forEach(b => b.classList.remove('selected-pro', 'selected-contra'));
+  btn.classList.add('selected-' + state.currentType);
+  state.selectedWeight = parseInt(btn.dataset.w); checkValid();
+}
+
+function checkValid() {
+  const t = document.getElementById('item-text').value.trim();
+  document.getElementById('modal-submit').disabled = !(t && state.selectedCat && state.selectedWeight);
+}
+document.getElementById('item-text').addEventListener('input', checkValid);
+
+function submitItem() {
+  const text = document.getElementById('item-text').value.trim();
+  const arr = state.currentType === 'pro' ? state.pros : state.contras;
+  if (state.editingId !== null) {
+    const idx = arr.findIndex(i => i.id === state.editingId);
+    if (idx !== -1) { arr[idx].text = text; arr[idx].cat = state.selectedCat; arr[idx].weight = state.selectedWeight; }
+  } else {
+    arr.push({ id: Date.now(), text, cat: state.selectedCat, weight: state.selectedWeight });
+  }
+  renderColumnList(state.currentType); updateScores(); closeModal();
+}
+
+function renderColumnList(type) {
+  const list = document.getElementById('list-' + type); list.innerHTML = '';
+  const arr = type === 'pro' ? state.pros : state.contras;
+  if (arr.length === 0) { list.innerHTML = `<p class="item-empty">Sin ${type}s aún</p>`; return; }
+  arr.forEach(item => {
+    const meta = CAT_META[item.cat]; let dots = '';
+    for (let i = 1; i <= 5; i++) dots += `<span class="weight-dot${i <= item.weight ? ' filled' : ''}"></span>`;
+    const d = document.createElement('div'); d.className = 'item-card';
+    d.innerHTML = `
+      <div class="item-actions">
+        <button class="btn-card-action edit" onclick="editItem('${type}', ${item.id})">✏️</button>
+        <button class="btn-card-action delete" onclick="deleteItem('${type}', ${item.id})">×</button>
+      </div>
+      <p class="item-text">${item.text}</p>
+      <div class="item-meta">
+        <span class="item-category">${meta.emoji} ${meta.label}</span>
+        <div class="item-weight">${dots}</div>
+      </div>`;
+    list.appendChild(d);
+  });
+}
+
+function editItem(type, id) {
+  const arr = type === 'pro' ? state.pros : state.contras;
+  const item = arr.find(i => i.id === id); if (item) openModal(type, item);
+}
+
+function deleteItem(type, id) {
+  const arr = type === 'pro' ? state.pros : state.contras;
+  const idx = arr.findIndex(i => i.id === id); if (idx !== -1) arr.splice(idx, 1);
+  renderColumnList(type); updateScores();
+}
+
+function updateScores() {
+  const sp = state.pros.reduce((s,i)=>s+i.weight,0);
+  const sc = state.contras.reduce((s,i)=>s+i.weight,0);
+  document.getElementById('score-pro').textContent = sp;
+  document.getElementById('score-contra').textContent = sc;
+  document.getElementById('btn-decide').disabled = !(state.pros.length > 0 && state.contras.length > 0);
+}
+
+function calcularDecision() {
+  const proSum = state.pros.reduce((s,i)=>s+i.weight,0);
+  const conSum = state.contras.reduce((s,i)=>s+i.weight,0);
+  const diffGlobal = proSum - conSum;
+
+  document.getElementById('res-dilema-text').textContent = `"${document.getElementById('dilema').value.trim() || 'Dilema sin título'}"`;
+  document.getElementById('res-score-pro').textContent = proSum;
+  document.getElementById('res-score-contra').textContent = conSum;
+  
+  // El 100% real de la decisión es todo lo que el usuario escribió en la app
+  const totalPuntosGlobal = proSum + conSum;
+  
+  const proPct = totalPuntosGlobal > 0 ? Math.round((proSum / totalPuntosGlobal) * 100) : 50;
+  const fill = document.getElementById('balance-fill');
+  fill.style.width = '50%';
+  setTimeout(() => { fill.style.width = proPct + '%'; }, 150);
+
+  const cats = Object.keys(CAT_META);
+  const catWeights = {};
+  
+  cats.forEach(c => {
+    let prosDeCat = state.pros.filter(i => i.cat === c).reduce((s,i)=>s+i.weight,0);
+    let contrasDeCat = state.contras.filter(i => i.cat === c).reduce((s,i)=>s+i.weight,0);
+    
+    catWeights[c] = {
+      proSum: prosDeCat,
+      conSum: contrasDeCat,
+      neto: prosDeCat - contrasDeCat
+    };
+  });
+
+  // Buscamos la categoría dominante según el mayor peso absoluto cargado
+  let domCat = cats[0], maxNetoAbs = -1;
+  cats.forEach(c => {
+    const absNeto = Math.abs(catWeights[c].neto);
+    if (absNeto > maxNetoAbs) { maxNetoAbs = absNeto; domCat = c; }
+  });
+
+  const breakdown = document.getElementById('cat-breakdown');
+  breakdown.innerHTML = '';
+  
+  cats.forEach(c => {
+    const w = catWeights[c];
+    if (w.proSum === 0 && w.conSum === 0) return; 
+
+    let pct = 0;
+    let balanceDir = '0% (NEUTRALIZADA)';
+    let clr = 'var(--text-dim)';
+    
+    if (w.neto === 0) {
+      pct = 0;
+      balanceDir = '0% (NEUTRALIZADA)';
+      clr = 'var(--text-dim)';
+    } else if (w.neto > 0) {
+      // Ponderación exacta sobre el total general ingresado
+      pct = totalPuntosGlobal > 0 ? Math.round((w.neto / totalPuntosGlobal) * 100) : 0;
+      balanceDir = `Impacto: ${pct}% (+${w.neto} PRO)`;
+      clr = 'var(--pro)';
+    } else if (w.neto < 0) {
+      // Ponderación exacta usando el valor absoluto neto
+      let valorAbsoluto = Math.abs(w.neto);
+      pct = totalPuntosGlobal > 0 ? Math.round((valorAbsoluto / totalPuntosGlobal) * 100) : 0;
+      balanceDir = `Impacto: ${pct}% (-${valorAbsoluto} CONTRA)`;
+      clr = 'var(--contra)';
+    }
+
+    breakdown.innerHTML += `
+      <div class="cat-row">
+        <div class="cat-row-header">
+          <span class="cat-row-name">${CAT_META[c].emoji} ${CAT_META[c].label}</span>
+          <span class="cat-row-pct" style="color:${clr}">${balanceDir}</span>
+        </div>
+        <div class="cat-bar-track">
+          <div class="cat-bar-fill" style="width:0%;background:${CAT_META[c].color};box-shadow:0 0 6px ${CAT_META[c].color}" data-w="${pct}"></div>
+        </div>
+      </div>`;
+  });
+
+  setTimeout(() => { document.querySelectorAll('.cat-bar-fill').forEach(b => b.style.width = b.dataset.w + '%'); }, 200);
+
+  const txt = document.getElementById('veredicto-text');
+  const sub = document.getElementById('veredicto-sub');
+
+  if (diffGlobal === 0) {
+    txt.style.color = 'var(--gold)'; txt.textContent = 'BALANZA EQUILIBRADA (50/50)';
+    sub.textContent = 'Los pros y los contras globales se anulan mutuamente. Añadí un argumento más.';
+  } else {
+    const side = diffGlobal > 0 ? 'pro' : 'contra';
+    const frases = FRASES_POOL[domCat][side];
+    const fraseAleatoria = frases[Math.floor(Math.random() * frases.length)];
+
+    txt.style.color = diffGlobal > 0 ? 'var(--pro)' : 'var(--contra)';
+    txt.textContent = fraseAleatoria;
+    sub.textContent = diffGlobal > 0 ? `Los pros ganan por un neto de ${diffGlobal} punto(s).` : `Los contras pesan más por un neto de ${Math.abs(diffGlobal)} punto(s).`;
+  }
+
+  document.getElementById('resultado-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeVerdict() { document.getElementById('resultado-overlay').classList.remove('open'); document.body.style.overflow = ''; }
+function resetApp() {
+  state.pros = []; state.contras = [];
+  document.getElementById('list-pro').innerHTML = '<p class="item-empty">Sin pros aún</p>';
+  document.getElementById('list-contra').innerHTML = '<p class="item-empty">Sin contras aún</p>';
+  document.getElementById('dilema').value = ''; updateScores(); closeVerdict();
+}
+</script>
+</body>
+</html>
