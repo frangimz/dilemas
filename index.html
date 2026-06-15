@@ -496,10 +496,15 @@
       <button class="btn-action" onclick="closeVerdict()">↩ Modificar</button>
       <button class="btn-action clear-all" onclick="resetApp()">🗑️ Borrar todo</button>
     </div>
+        <div class="actions-row" style="margin-top:12px;">
+          <button class="btn-action" onclick="shareWhatsApp()">💬 Compartir WhatsApp</button>
+        </div>
   </div>
 </div>
 
-<script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
 const state = { 
   pros: [], 
   contras: [], 
@@ -733,6 +738,35 @@ function resetApp() {
   document.getElementById('list-pro').innerHTML = '<p class="item-empty">Sin pros aún</p>';
   document.getElementById('list-contra').innerHTML = '<p class="item-empty">Sin contras aún</p>';
   document.getElementById('dilema').value = ''; updateScores(); closeVerdict();
+}
+
+async function exportImage() {
+  const el = document.querySelector('.resultado-inner');
+  if (!el) return;
+  await new Promise(r => setTimeout(r, 100));
+  const canvas = await html2canvas(el, { scale: 2, backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#1A1A1E' });
+  const dataUrl = canvas.toDataURL('image/png');
+  const link = document.createElement('a');
+  link.href = dataUrl; link.download = 'reporte-dilema.png'; link.click();
+}
+
+function buildShareText() {
+  const title = document.getElementById('dilema').value.trim() || 'Dilema sin título';
+  const pro = document.getElementById('res-score-pro').textContent || '0';
+  const con = document.getElementById('res-score-contra').textContent || '0';
+  const verdict = document.getElementById('veredicto-text').textContent || '';
+  const sub = document.getElementById('veredicto-sub').textContent || '';
+  // List a few pros and contras
+  const prosList = state.pros.slice(0,5).map(p => `- ${p.text} (${p.weight})`).join('\n') || 'No hay pros listados';
+  const consList = state.contras.slice(0,5).map(c => `- ${c.text} (${c.weight})`).join('\n') || 'No hay contras listados';
+  const header = '📝 Resuelto con Dilemas';
+  return `${header}\n\n"${title}"\n\nPROS (${pro}):\n${prosList}\n\nCONTRAS (${con}):\n${consList}\n\nVeredicto: ${verdict}\n${sub}\n\nGenerado con Dilemas.`;
+}
+
+function shareWhatsApp() {
+  const text = buildShareText();
+  const url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(text);
+  window.open(url, '_blank');
 }
 </script>
 </body>
